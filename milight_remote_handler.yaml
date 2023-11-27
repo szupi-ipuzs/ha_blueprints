@@ -2,35 +2,36 @@ blueprint:
   name: S2 Remote
   description: Control your light with MiLight S2 remote
   domain: automation
+  author: szupi_ipuzs
   input:
     remote_sensor:
       name: Sensor
       description: Sensor representing the remote (must be created by eventsensor integration)
       selector:
-        target:
-          entity:
-            filter:
-              - integration: eventsensor
+        entity:
+          integration: eventsensor
     target_light:
       name: Lights
       description: The light to be controlled
       selector:
-        target:
-          entity:
-            filter:
-              - domain: light
+        entity:
+          domain:
+            - light
+
+variables:
+  user_sensor: !input remote_sensor
+  user_light: !input target_light
 
 trigger:
   - platform: state
-    entity_id:
-      - !input remote_sensor
+    entity_id: !input remote_sensor
     attribute: time_fired
 condition: []
 action:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ (states('!input remote_sensor')|from_json)['state'] == 'ON' }}"
+            value_template: "{{ (states(user_sensor)|from_json)['state'] == 'ON' }}"
         sequence:
           - service: light.turn_on
             data: {}
@@ -38,7 +39,7 @@ action:
               entity_id: !input target_light
       - conditions:
           - condition: template
-            value_template: "{{ (states('!input remote_sensor')|from_json)['state'] == 'OFF' }}"
+            value_template: "{{ (states(user_sensor)|from_json)['state'] == 'OFF' }}"
         sequence:
           - service: light.turn_off
             data: {}
@@ -47,54 +48,55 @@ action:
       - conditions:
           - condition: template
             value_template: >-
-              {{ (states('!input remote_sensor')|from_json).brightness is defined
+              {{ (states(user_sensor)|from_json).brightness is defined
               }}
         sequence:
           - service: light.turn_on
             data:
               brightness: >-
-                {{ (states('!input remote_sensor')|from_json)['brightness'] | int
+                {{ (states(user_sensor)|from_json)['brightness'] | int
                 }}
             target:
               entity_id: !input target_light
       - conditions:
           - condition: template
             value_template: >-
-              {{ (states('!input remote_sensor')|from_json).kelvin is defined
+              {{ (states(user_sensor)|from_json).kelvin is defined
               }}
         sequence:
           - service: light.turn_on
             data:
               color_temp_kelvin: >-
-                {{ (states('!input remote_sensor')|from_json)['kelvin'] | int
+                {{ (states(user_sensor)|from_json)['kelvin'] | int
                 }}
             target:
               entity_id: !input target_light
       - conditions:
           - condition: template
             value_template: >-
-              {{ (states('!input remote_sensor')|from_json).hue is defined
+              {{ (states(user_sensor)|from_json).hue is defined
               }}
         sequence:
           - service: light.turn_on
             data:
               hs_color:
-                - "{{ (states('!input remote_sensor')|from_json)['hue'] | int }}"
-                - "{{ (state_attr('!input target_light', 'hs_color')[1] or 0) }}"
+                - "{{ (states(user_sensor)|from_json)['hue'] | int }}"
+                - "{{ (state_attr(user_light, 'hs_color')[1] or 0) }}"
             target:
               entity_id: !input target_light
       - conditions:
           - condition: template
             value_template: >-
-              {{ (states('!input remote_sensor')|from_json).saturation is defined
+              {{ (states(user_sensor)|from_json).saturation is defined
               }}
         sequence:
           - service: light.turn_on
             data:
               hs_color:
-                - "{{ (state_attr('!input target_light', 'hs_color')[0] or 0) }}"
-                - "{{ (states('!input remote_sensor')|from_json)['saturation'] | int }}"
+                - "{{ (state_attr(user_light, 'hs_color')[0] or 0) }}"
+                - "{{ (states(user_sensor)|from_json)['saturation'] | int }}"
             target:
               entity_id: !input target_light
 mode: queued
 max: 20
+
