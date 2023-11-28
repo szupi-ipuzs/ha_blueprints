@@ -53,6 +53,7 @@ action:
         sequence:
           - service: light.turn_on
             data:
+              transition: 0
               brightness: >-
                 {{ (states(user_sensor)|from_json)['brightness'] | int
                 }}
@@ -66,6 +67,7 @@ action:
         sequence:
           - service: light.turn_on
             data:
+              transition: 0
               color_temp_kelvin: >-
                 {{ (states(user_sensor)|from_json)['kelvin'] | int
                 }}
@@ -79,6 +81,7 @@ action:
         sequence:
           - service: light.turn_on
             data:
+              transition: 0
               hs_color:
                 - "{{ (states(user_sensor)|from_json)['hue'] | int }}"
                 - "{{ (state_attr(user_light, 'hs_color')[1] or 0) }}"
@@ -92,6 +95,7 @@ action:
         sequence:
           - service: light.turn_on
             data:
+              transition: 0
               hs_color:
                 - "{{ (state_attr(user_light, 'hs_color')[0] or 0) }}"
                 - "{{ (states(user_sensor)|from_json)['saturation'] | int }}"
