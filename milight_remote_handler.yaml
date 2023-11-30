@@ -17,6 +17,15 @@ blueprint:
         entity:
           domain:
             - light
+    cmd_delay:
+      name: Command delay
+      description: Some light might not handle fast changing values well, define a small delay to help the cope
+      selector:
+        number:
+          min: 0.0
+          max: 0.5
+          step: 0.1
+          mode: slider
 
 variables:
   user_sensor: !input remote_sensor
@@ -59,6 +68,7 @@ action:
                 }}
             target:
               entity_id: !input target_light
+          - delay: !input cmd_delay
       - conditions:
           - condition: template
             value_template: >-
@@ -73,6 +83,7 @@ action:
                 }}
             target:
               entity_id: !input target_light
+          - delay: !input cmd_delay
       - conditions:
           - condition: template
             value_template: >-
@@ -87,6 +98,7 @@ action:
                 - "{{ (state_attr(user_light, 'hs_color')[1] or 0) }}"
             target:
               entity_id: !input target_light
+          - delay: !input cmd_delay
       - conditions:
           - condition: template
             value_template: >-
@@ -101,6 +113,7 @@ action:
                 - "{{ (states(user_sensor)|from_json)['saturation'] | int }}"
             target:
               entity_id: !input target_light
+          - delay: !input cmd_delay
 mode: queued
 max: 20
 
