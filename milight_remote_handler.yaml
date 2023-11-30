@@ -26,6 +26,7 @@ blueprint:
           max: 0.5
           step: 0.1
           mode: slider
+          unit_of_measurement: "s"
 
 variables:
   user_sensor: !input remote_sensor
